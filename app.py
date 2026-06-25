@@ -1,5 +1,7 @@
-from flask import Flask, request, jsonify, render_template,
-send_from_directory import os import json from datetime import datetime
+from flask import Flask, request, jsonify, render_template, send_from_directory
+import os
+import json
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -16,11 +18,11 @@ def cargar_registros():
 def guardar_registro(nombre, codigo_qr, tipo="MAYOR"):
     registros = cargar_registros()
     registros.insert(0, {
-    "archivo": nombre,
-    "codigo_qr": codigo_qr,
-    "tipo": tipo,
-    "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-})
+        "archivo": nombre,
+        "codigo_qr": codigo_qr,
+        "tipo": tipo,
+        "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    })
     with open(DATA_FILE, 'w') as f:
         json.dump(registros, f)
 
