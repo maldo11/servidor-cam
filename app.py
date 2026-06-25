@@ -1,7 +1,5 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
-import os
-import json
-from datetime import datetime
+from flask import Flask, request, jsonify, render_template,
+send_from_directory import os import json from datetime import datetime
 
 app = Flask(__name__)
 
@@ -15,28 +13,38 @@ def cargar_registros():
             return json.load(f)
     return []
 
-def guardar_registro(nombre, codigo_qr):
+def guardar_registro(nombre, codigo_qr, tipo="MAYOR"):
     registros = cargar_registros()
     registros.insert(0, {
-        "archivo": nombre,
-        "codigo_qr": codigo_qr,
-        "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    })
+    "archivo": nombre,
+    "codigo_qr": codigo_qr,
+    "tipo": tipo,
+    "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+})
     with open(DATA_FILE, 'w') as f:
         json.dump(registros, f)
 
 @app.route('/upload', methods=['POST'])
 def upload():
     codigo_qr = request.headers.get('X-QR-Code', 'desconocido')
+    tipo = request.headers.get('X-Tipo', 'MAYOR')
     imagen = request.data
+
+    nombre = f"foto_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+
+    if tipo == 'MENOR':
+        guardar_registro("sin_foto", codigo_qr, tipo)
+        return jsonify({"status": "ok", "tipo": "menor_registrado"}), 200
+
     if not imagen:
         return jsonify({"error": "sin imagen"}), 400
-    nombre = f"foto_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+
     ruta = os.path.join(UPLOAD_FOLDER, nombre)
     with open(ruta, 'wb') as f:
         f.write(imagen)
-    guardar_registro(nombre, codigo_qr)
-    print(f"Foto recibida: {nombre} | QR: {codigo_qr}")
+
+    guardar_registro(nombre, codigo_qr, tipo)
+    print(f"Foto recibida: {nombre} | QR: {codigo_qr} | Tipo: {tipo}")
     return jsonify({"status": "ok", "archivo": nombre}), 200
 
 @app.route('/fotos/<nombre>')

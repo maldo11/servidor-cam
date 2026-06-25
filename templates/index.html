@@ -16,6 +16,7 @@
     .qr { font-size: 0.85rem; color: #4fc3f7; word-break: break-all; margin-bottom: 6px; }
     .fecha { font-size: 0.75rem; color: #888; }
     .badge { display: inline-block; background: #263238; border: 1px solid #4fc3f7; border-radius: 6px; padding: 2px 8px; font-size: 0.75rem; margin-bottom: 6px; }
+    .denegado { height:200px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; color:#e53935; font-size:1.2rem; }
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; align-items:center; justify-content:center; }
     .modal.active { display:flex; }
     .modal img { max-width:90%; max-height:90vh; border-radius:8px; }
@@ -29,9 +30,17 @@
   <div class="galeria">
     {% for r in registros %}
     <div class="card">
+      {% if r.archivo != 'sin_foto' %}
       <img src="/fotos/{{ r.archivo }}" alt="foto" onclick="abrirModal(this.src)">
+      {% else %}
+      <div class="denegado">ACCESO DENEGADO</div>
+      {% endif %}
       <div class="info">
-        <div class="badge">QR</div>
+        {% if r.tipo == 'MENOR' %}
+        <div class="badge" style="border-color:#e53935; color:#e53935;">MENOR</div>
+        {% else %}
+        <div class="badge">MAYOR</div>
+        {% endif %}
         <div class="qr">{{ r.codigo_qr }}</div>
         <div class="fecha">🕐 {{ r.fecha }}</div>
       </div>
