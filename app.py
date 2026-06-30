@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'fotos'
 DATA_FILE = 'registros.json'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def hora_colombia():
+    return datetime.utcnow() - timedelta(hours=5)
 
 def cargar_registros():
     if os.path.exists(DATA_FILE):
@@ -21,7 +24,7 @@ def guardar_registro(nombre, codigo_qr, tipo="MAYOR"):
         "archivo": nombre,
         "codigo_qr": codigo_qr,
         "tipo": tipo,
-        "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "fecha": hora_colombia().strftime("%Y-%m-%d %H:%M:%S")
     })
     with open(DATA_FILE, 'w') as f:
         json.dump(registros, f)
@@ -32,7 +35,7 @@ def upload():
     tipo = request.headers.get('X-Tipo', 'MAYOR')
     imagen = request.data
 
-    nombre = f"foto_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+    nombre = f"foto_{hora_colombia().strftime('%Y%m%d_%H%M%S')}.jpg"
 
     if tipo == 'MENOR':
         guardar_registro("sin_foto", codigo_qr, tipo)
